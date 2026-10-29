@@ -6,7 +6,6 @@ import {
   ChevronRight,
   Copy,
   Loader2,
-  Lock,
 } from 'lucide-react';
 import { useApp } from '@/lib/auth';
 import {
@@ -28,14 +27,13 @@ import {
   haftaGunleri,
   iso,
   kisaTarih,
-  GUN_KISA,
   saatMetni,
 } from '@/lib/dates';
 import { AyBadge, EmptyState, HaftaBadge, InlineError, SectionHead } from '@/components/parts';
 import ShiftSheet from '@/components/ShiftSheet';
+import WeekGrid from '@/components/WeekGrid';
 import { gunDuzenlenebilir } from '@/lib/permissions';
 import {
-  aktifGun,
   bosHucreler,
   getShift,
   haftaKadro,
@@ -44,23 +42,12 @@ import {
   haftaToplami,
   shiftMap,
 } from '@/lib/calc';
-import {
-  BOS_RENK,
-  Employee,
-  GRUP_ETIKET,
-  GRUP_SIRA,
-  GUN_TIP_KISA,
-  GunTip,
-  KOD_RENK,
-  Shift,
-  siralaPersonel,
-} from '@/lib/types';
+import { Employee, GunTip, Shift, siralaPersonel } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 export default function SchedulePage() {
   const { profile, branch, branches } = useApp();
   const [monday, setMonday] = useState(() => haftaBasi(new Date()));
-  const [acikKisi, setAcikKisi] = useState<string | null>(null);
   const [editing, setEditing] = useState<{ employee: Employee; tarih: string } | null>(null);
   const [actionPanel, setActionPanel] = useState<null | 'kapat' | 'onayla' | 'geri'>(null);
   const [not, setNot] = useState('');
@@ -282,133 +269,18 @@ export default function SchedulePage() {
           />
         )}
 
-        <div className="space-y-4">
-          {GRUP_SIRA.map((grup) => {
-            const grupList = ozetler.filter((o) => (o.employee.grup ?? 'K') === grup);
-            if (grupList.length === 0) return null;
-            return (
-              <section key={grup}>
-                <p className="label-cap mb-2">
-                  {GRUP_ETIKET[grup]} · {grupList.length}
-                </p>
-        <ul className="space-y-2">
-          {grupList.map(({ employee, ozet }) => {
-            const open = acikKisi === employee.id;
-            const kayitli = haftaKaydiVar(employee.id, monday, map);
-            return (
-              <li key={employee.id} className="card-surface overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => setAcikKisi(open ? null : employee.id)}
-                  aria-expanded={open}
-                  className="press flex min-h-[60px] w-full items-center gap-3 px-4 py-3 text-left"
-                >
-                  <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[hsl(var(--surface-2))] text-[13px] font-bold text-[hsl(var(--ink-soft))]">
-                    {employee.ad_soyad
-                      .split(' ')
-                      .slice(0, 2)
-                      .map((p) => p[0])
-                      .join('')}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[15px] font-semibold">
-                      {employee.ad_soyad}
-                    </span>
-                    <span className="hint">
-                      {ozet.calisilanGun} gün · {saatMetni(ozet.toplamSaat)} saat
-                      {ozet.fazlaMesai !== 0 && ` · FM ${saatMetni(ozet.fazlaMesai)}`}
-                    </span>
-                  </span>
-                  <ChevronRight
-                    className={cn(
-                      'size-4 shrink-0 text-[hsl(var(--ink-soft))] transition-transform',
-                      open && 'rotate-90'
-                    )}
-                  />
-                </button>
-
-                {open && (
-                  <div className="border-t border-[hsl(var(--line))] px-3 pb-3 pt-3">
-                    <div className="grid grid-cols-7 gap-1">
-                      {gunler.map((tarih, i) => {
-                        const s = getShift(map, employee.id, tarih);
-                        const kilit = !duzenlenebilir(tarih);
-                        const aktif = aktifGun(employee, tarih);
-                        if (!aktif) {
-                          return (
-                            <div
-                              key={tarih}
-                              className="flex min-h-[62px] flex-col items-center justify-start gap-0.5 rounded-xl bg-[hsl(var(--surface-2))] px-0.5 py-1.5 text-center opacity-50"
-                            >
-                              <span className="text-[11px] font-semibold">{GUN_KISA[i]}</span>
-                              <span className="text-[10px] num">—</span>
-                            </div>
-                          );
-                        }
-                        const renk = s && s.tip !== 'vardiya' ? KOD_RENK[s.tip] : null;
-                        const bos = !s && kayitli;
-                        return (
-                          <button
-                            key={tarih}
-                            type="button"
-                            onClick={() => setEditing({ employee, tarih })}
-                            style={
-                              renk
-                                ? { backgroundColor: renk[0], color: renk[1], borderColor: renk[0] }
-                                : bos
-                                  ? { backgroundColor: BOS_RENK, borderColor: '#f3b4b4' }
-                                  : undefined
-                            }
-                            className={cn(
-                              'press flex min-h-[62px] flex-col items-center justify-start gap-0.5 rounded-xl border px-0.5 py-1.5 text-center',
-                              s
-                                ? s.tip === 'vardiya' && 'border-primary/30 bg-primary-soft'
-                                : !bos && 'border-dashed border-[hsl(var(--line))] bg-background'
-                            )}
-                          >
-                            <span className={cn('text-[11px] font-semibold', !renk && 'text-[hsl(var(--ink-soft))]')}>
-                              {GUN_KISA[i]}
-                            </span>
-                            <span className={cn('text-[10px] num', !renk && 'text-[hsl(var(--ink-soft))]')}>
-                              {kisaTarih(tarih).split(' ')[0]}
-                            </span>
-                            {s ? (
-                              s.tip === 'vardiya' ? (
-                                <span className="text-[10px] font-bold leading-tight num">
-                                  {s.baslangic?.slice(0, 5)}
-                                  <br />
-                                  {s.bitis?.slice(0, 5)}
-                                </span>
-                              ) : (
-                                <span className="px-0.5 text-[9px] font-bold leading-tight">
-                                  {GUN_TIP_KISA[s.tip]}
-                                </span>
-                              )
-                            ) : (
-                              <span className="text-[16px] leading-none text-[hsl(var(--line))]">
-                                +
-                              </span>
-                            )}
-                            {kilit && <Lock className="size-2.5 text-[hsl(var(--durum-acik))]" />}
-                          </button>
-                        );
-                      })}
-                    </div>
-                    <p className="hint mt-2">
-                      Vardiya {saatMetni(ozet.toplamSaat)} saat · Fazla mesai{' '}
-                      <span className="font-semibold">{saatMetni(ozet.fazlaMesai)}</span>
-                      {ozet.bonus > 0 && ` (7 gün bonusu ${saatMetni(ozet.bonus)})`}
-                    </p>
-                  </div>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-              </section>
-            );
-          })}
-        </div>
+        {kadro.length > 0 && (
+          <WeekGrid
+            gunler={gunler}
+            satirlar={ozetler}
+            map={map}
+            branch={branch}
+            kayitli={(id) => haftaKaydiVar(id, monday, map)}
+            duzenlenebilir={duzenlenebilir}
+            bugun={iso(new Date())}
+            onHucre={(employee, tarih) => setEditing({ employee, tarih })}
+          />
+        )}
       </div>
 
       <div className="card-surface p-4">

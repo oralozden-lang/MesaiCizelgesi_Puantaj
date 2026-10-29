@@ -43,6 +43,12 @@
     --durum-kapali: 31 70% 51%;
     --durum-onayli: 156 47% 33%;
     --durum-kesin: 212 51% 31%;
+
+    /* Çizelge: açılış / kapanış vardiyası */
+    --vardiya-acilis: 48 94% 77%;
+    --vardiya-acilis-ink: 45 100% 15%;
+    --vardiya-kapanis: 36 82% 63%;
+    --vardiya-kapanis-ink: 32 100% 12%;
   }
 
   .dark {
@@ -79,6 +85,11 @@
     --durum-kapali: 33 69% 61%;
     --durum-onayli: 156 38% 52%;
     --durum-kesin: 212 45% 62%;
+
+    --vardiya-acilis: 48 70% 62%;
+    --vardiya-acilis-ink: 45 100% 10%;
+    --vardiya-kapanis: 33 63% 55%;
+    --vardiya-kapanis-ink: 32 100% 9%;
   }
 
   * {
