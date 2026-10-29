@@ -38,15 +38,15 @@ Kural **G-1:** Vardiya olmayan kodlar "dolu hücre" sayılır; boş gün değild
 ## 2. Saat kuralları
 
 - **S-1 Yarım saat.** Başlangıç ve bitiş dakikası yalnızca `00` veya `30`.
-- **S-2 Aralık.** Normal aralık: `açılış … kapanış + 30 dk`. Kapanış ≤ açılış ise kapanışa 24 saat eklenir (gece yarısını geçen şube).
-- **S-3 Pay.** **Bugün ve geçmiş günlerde** iki uçta birer saat pay vardır (`açılış−1 … kapanış+1,5`); bu saatler "erken çağrılma / geç çıkış (düzeltme)" olarak işaretlenir. **İleri tarihli günlerde pay yoktur.**
+- **S-2 Tek saat listesi (KARAR).** Saat listesi **bütün şubeler için ortak, tek bir yarım saatlik listedir**. Şubeye göre liste değişmez. Liste aralığı ❓ (aşağıda). *(EmrePuantaj'da liste şubenin açılış/kapanışına göre üretiliyordu; bu kalktı.)*
+- **S-3 Pay / ileri tarih sınırı kalktı (KARAR).** EmrePuantaj'daki "bugün ve geçmişte ±1 saat pay, ileri tarihte pay yok" ayrımı ve "erken/geç" turuncu işareti **yoktur**; tek liste her gün geçerlidir.
 - **S-4 Gece vardiyası.** `bitiş ≤ başlangıç` ise süre `bitiş + 24 − başlangıç`. Örnek: `18:00-02:30` = 8,5 saat.
-- **S-5 Azami süre.** Bir vardiya `max(16, aralık uzunluğu + pay)` saati geçemez.
-- **S-6 Açılış / kapanış vardiyası** (etiket): başlangıç ≤ açılış → açılış vardiyası; bitiş ≥ kapanış → kapanış vardiyası.
-- **S-7 `sonSaat`** (opsiyonel şube ayarı, örn. `02:30`): kapanış değişmez, yalnızca seçilebilir son saat uzar. Açılıştan en fazla 20 saat sonrası. *(Şartname §11 cevabı: v1'de gerekli değil, ❓ sonraya bırakılabilir.)*
+- **S-5 Azami süre.** Bir vardiya en çok **16 saat** olabilir.
+- **S-6 Şube açılış/kapanış saati yalnızca renklendirme içindir (KARAR).** Şube ayarında yalnızca `açılış` ve `kapanış` tutulur ve değiştirilir. Çizelgede: başlangıç ≤ açılış → **açılış vardiyası** rengi; bitiş ≥ kapanış → **kapanış vardiyası** rengi. Saat seçimini kısıtlamaz.
+- **S-7 `sonSaat` kaldırıldı (KARAR).** Tek liste olduğu için gerekmez.
 - **S-8 Aynı gün tek şube.** Bir kişi aynı günde iki şubede vardiyalı olamaz; vardiya ile başka şubedeki rapor/ücretsiz/yıllık izin de çakışır. (Bizde `shifts` anahtarı `(kişi, tarih)` olduğu için veritabanı bunu kendiliğinden sağlar.)
 
-Durum: S-1…S-6 ✅ (arayüzde), S-7 ⬜, S-8 ✅ (anahtarla).
+Durum: S-1, S-4, S-5 ✅ · S-2, S-3, S-7 ⬜ (mevcut uygulama şube saatine göre liste üretiyor, değişecek) · S-6 ◐ · S-8 ✅ (anahtarla).
 
 ---
 
@@ -112,9 +112,9 @@ Durum: H-5, H-6 ✅ · H-7 ◐ (bizde teyit yok; sayım `calisilanGun === 7`) ·
 
 **D-4 Ayar zamanla değişir.** `günlük saat`, `fm_donem`, `fm_yontem`, `fm_ucret` değişince **o aydan itibaren** geçerlidir; önceki aylar eski ayarla hesaplanır (ayar geçmişi satırları). Ay bitmeden değiştirilmelidir.
 
-**D-5 Elle dönem sonu (EmrePuantaj):** işveren, haftalık dönemde ayın kaç hafta ödeneceğini seçebilir (varsayılandan en çok ±3 hafta; ayın ilk dönemi için başlangıç da). Ay ya da sonraki ay onaylıysa kilitli. ❓ **Gerçek kullanımda gerekiyor mu?** Yoksa sade bırakıp "haftalık / takvim" ile yetinebiliriz.
+**D-5 Elle dönem sonu (KARAR: kalsın).** İşveren, haftalık dönemde ayın kaç hafta ödeneceğini seçebilir (varsayılandan en çok ±3 hafta; sistemin ilk ayı için başlangıç da). Ay ya da sonraki ay onaylıysa kilitli. Seçilen sınır hafta sınırına oturtulur (başlangıç Pazartesi, bitiş Pazar); sonraki ay, bu ayın bittiği günün ertesinden başlar.
 
-Durum: D-1 ✅ (`calc.ts` yalnızca bunu yapar) · D-2 ⬜ (`fm_donem` kolonu var, hesap yok sayıyor) · D-3 ⬜ · D-4 ◐ · D-5 ⬜ ❓.
+Durum: D-1 ✅ (`calc.ts` yalnızca bunu yapar) · D-2 ⬜ (`fm_donem` kolonu var, hesap yok sayıyor) · D-3 ⬜ · D-4 ◐ · D-5 ⬜.
 
 ---
 
@@ -165,7 +165,7 @@ acik ──kapat──▶ kapali ──onayla──▶ onayli
   - Boş gün → **engel**.
   - 7 gün çalışan teyidi → **engel**.
   - Rapor/ücretsiz/yıllık izin teyidi → **engel**.
-  - Haftanın listesinde olmayan ama o hafta çalışan kişi → "çalışmadı" işaretlenirse kapatınca **o haftanın günleri ücretsiz izin yazılır**.
+  - **Çalışmayan kişi (KARAR: kural devam):** haftanın listesindeki bir kişi o hafta hiç çalışmadıysa şube müdürü "çalışmadı" işaretler; hafta kapanırken **o haftanın çalışan günleri ücretsiz izin yazılır** (günleri tek tek doldurmak gerekmez). İşaretlenmeden hafta kapanmaz. (Bkz. P-12.)
   - Eksi FM → bilgi.
 - **W-3 Bölge/işveren onayında:** şube müdürünün işaretlediği maddeler ✓ görünür. **Giriş/çıkış teyidi zorunlu** (SGK tarihi ile çizelgedeki ilk/son çalışılan gün karşılaştırılır).
 - **W-4 Kilit matrisi:** `acik`: herkes · `kapali`: bölge+işveren · `onayli`: yalnızca işveren · `kesin` aya değen gün: kimse (önce işveren kesini açar). Kilit **gün bazlıdır** (günün haftası ve ayı kontrol edilir).
@@ -212,7 +212,13 @@ Durum: M-2 ✅ (`0003`) · M-1 ✅ · M-3 ⬜ · M-4…M-9 ⬜.
 - **P-9 Yetki:** şube müdürü SGK şubesi, çalıştığı şube, giriş, çıkış ve maaş şubesini **değiştiremez** (görür); yeni kişiyi SGK bilgisi boş ekler.
 - **P-10 İsim:** büyük harf (Türkçe). Eşleştirmede Türkçe karakter farkı yok sayılır.
 - **P-11 TC** 11 hane + kontrol algoritması; **IBAN** `TR` + 24 hane + mod-97. **IBAN değişince** eski IBAN, değişim tarihi ve değiştiren sunucuda saklanır; denetim kaydına düşer. TC/IBAN yalnızca işveren ve bölge müdürü (✅ `employee_private`).
-- **P-12 Haftanın listesi (kadro):** EmrePuantaj kadroyu ayrı tutar (kişi haftaya "+ ekle" ile eklenir). **Bizde kadro yok:** kişi `giriş…çıkış` arasında her gün görünür. Bu fark bilinçli, sade tutuyoruz. ❓
+- **P-12 Haftanın listesi (KARAR: otomatik + elle ekle/çıkar).**
+  - **Otomatik:** şubeye bağlı (çalıştığı şube ya da diğer şube) ve o hafta çalışan günü olan her kişi, haftanın listesinde kendiliğinden görünür. Her hafta liste kurmak gerekmez.
+  - **Elle çıkar:** kişi o hafta başka şubede çalışıyorsa vb. şube müdürü onu **o haftanın listesinden çıkarır**. Çıkarılan kişinin o haftada bu şubede boş günü sayılmaz, hiçbir şey yazılmaz.
+  - **Elle ekle:** başka şubenin kişisi o hafta bu şubede çalışacaksa **haftaya eklenir** (çok şubeli çalışma).
+  - **Çalışmadı:** listedeki kişi hiç çalışmadıysa W-2'deki kural: günler **ücretsiz izin** yazılır.
+  - **Veri:** `hafta_kadro_istisna(şube, hafta, kişi, tür: 'ekle' | 'cikar')`. Otomatik liste hesaplanır, yalnızca istisnalar saklanır.
+  - Kapalı/onaylı haftanın listesi, hafta kapanırken dondurulur (sonradan çıkış/giriş tarihi değişse de o haftanın satırları aynı kalır).
 
 **Yeni yapıda düzelttiğimiz tasarım hatası:** EmrePuantaj aynı gerçek kişiyi şube/dönem başına **ayrı kayıt** olarak tutuyor ve "aynı kişi mi" sorusunu TC/isimle tahmin ediyor (`ayniKisi`). Bizde **tek kişi + çalışma dönemleri/görevlendirmeler** tablosu olacak.
 
@@ -282,15 +288,22 @@ Durum: tamamı ⬜.
 | "Sayılan boş gün" kuralı | **H-1:** çalışan gün + boş hücre + o hafta en az bir dolu hücre + esnaf değil (+ çok şubelide maaş şubesi). Her boş gün `günlük saat` eksi. |
 | İzin kodları listesi | `HT R UI YI B CG` (+ eski `D`, kaldırıldı). `CG` yalnızca part. |
 | Pazartesi kuralı | **Haftalık dönemde** hafta Pazartesi'nin ayına yazılır. **Takvim ayında** gün gün; 7. gün bonusu Pazar'ın ayına. |
-| `sonSaat` | Opsiyonel şube ayarı; yalnızca saat listesini uzatır. v1'de gerekmez. |
+| `sonSaat` | **Kaldırıldı.** Saat listesi tüm şubeler için tek (S-2, S-7). |
 
 ---
 
-## 14. Sizin kararınızı bekleyenler ❓
+## 14. Kararlar
 
-1. **D-5 elle dönem sonu seçici** gerekli mi, yoksa yalnızca *haftalık / takvim* mi?
-2. **P-12 haftalık kadro:** EmrePuantaj'daki gibi "kişiyi haftaya ekle/çıkar" mı, yoksa bizdeki gibi giriş-çıkış aralığında otomatik mi? (Haftada çalışmayan kişi için W-2'deki "listede yok → ücretsiz izin" kuralı kadroya bağlı.)
-3. **O-3 devir:** yalnızca eksi kalan devreder; doğru mu?
-4. **M-4 onay öncesi kontrol** ("muhasebe grubuyla teyit") korunsun mu?
-5. **S-7 `sonSaat`** ilk sürümden çıkarılsın mı?
-6. **Eylül 2026 küsurat kuralı** (O-2) sabit bir tarih olarak mı kalsın, yoksa ayar mı olsun?
+| # | Konu | Karar |
+|---|---|---|
+| 1 | Elle fazla mesai dönem sonu (D-5) | **Kalsın.** |
+| 2 | Haftalık kadro (P-12) | **Otomatik gelsin, gerekirse elle ekle/çıkar.** Çalışmayan kişi → ücretsiz izin kuralı devam. |
+| 3 | Devir (O-3) | **Kalsın**, sonra değerlendirilecek. |
+| 4 | Onay öncesi muhasebe teyit listesi (M-4) | **Kalsın.** |
+| 5 | Saat listesi (S-2, S-3, S-6, S-7) | **Bütün şubeler için tek liste.** Şubede yalnızca açılış/kapanış tutulur, çizelge rengi içindir. `sonSaat` ve pay kuralı yok. |
+| 6 | Küsurat atma (O-2) | **Sabit kalsın** (Eylül 2026'dan itibaren). |
+
+## 15. Hâlâ açık ❓
+
+1. **S-2 tek liste hangi aralık?** Önerim: **10:00 – 03:30** (30 dk aralıklı; EmrePuantaj'ın pay dahil en geniş aralığı). Bu aralık dışı saat girilemez. Farklı bir aralık istiyorsanız belirtin.
+2. **P-12 "elle çıkar" kuralı:** çıkarılan kişinin o hafta bu şubede hiçbir günü boş sayılmaz. Çıkarılan kişinin o hafta bu şubede zaten yazılmış vardiyası varsa çıkarmaya izin verilmesin mi?
