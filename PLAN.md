@@ -16,6 +16,9 @@
 - Güncel migration'lar: `0001_puantaj_tam_sema.sql`, `0002_faz1_faz2.sql`.
 - lint, tsc, build temiz; dev sunucusu açılıyor.
 
+- Aşama B tamam: `0003_guvenlik.sql` Puantaj_yeni'ye uygulandı ve repoya eklendi. İstemci audit yazımı kaldırıldı. `paket_basi` ayrı tabloya taşıma (madde 10) Aşama C'ye bırakıldı.
+- Vercel: proje `mesai-cizelgesi-puantaj` (root `app/frontend`), dal başına Preview adresi verir.
+
 ## Aşama A — Bağlantı (kullanıcıda)
 
 - Supabase bağlayıcısında yazma araçları izinli, yeni oturum açıldı.
