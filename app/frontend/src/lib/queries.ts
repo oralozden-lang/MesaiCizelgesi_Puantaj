@@ -371,7 +371,7 @@ export const useWeekAction = () => {
       userId: string;
       emptyCount?: number;
     }) => {
-      const { branchId, monday, action, not, userId, emptyCount } = payload;
+      const { branchId, monday, action, not, userId } = payload;
       const now = new Date().toISOString();
       const patch: Record<string, unknown> = { branch_id: branchId, hafta_baslangic: monday };
       if (action === 'kapat') {
@@ -390,18 +390,6 @@ export const useWeekAction = () => {
         .from(T.weeks)
         .upsert(patch, { onConflict: 'branch_id,hafta_baslangic' });
       if (error) err(error);
-      const islem =
-        action === 'kapat'
-          ? `Hafta kapatıldı (${monday})`
-          : action === 'onayla'
-            ? `Hafta onaylandı (${monday})`
-            : `Hafta geri gönderildi (${monday})`;
-      await supabase.from(T.audit).insert({
-        kullanici: userId,
-        branch_id: branchId,
-        islem,
-        detay: { hafta: monday, not: not ?? null, bos_hucre: emptyCount ?? 0 },
-      });
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['weeks'] });
@@ -442,20 +430,6 @@ export const useMonthAction = () => {
         .from(T.months)
         .upsert(patch, { onConflict: 'branch_id,ay' });
       if (error) err(error);
-      const islem =
-        action === 'onayla'
-          ? `Ay onaylandı (${ay.slice(0, 7)})`
-          : action === 'kesin'
-            ? `Ay kesinleştirildi (${ay.slice(0, 7)})`
-            : action === 'kesin_ac'
-              ? `Kesin kapanış açıldı (${ay.slice(0, 7)})`
-              : `Ay geri gönderildi (${ay.slice(0, 7)})`;
-      await supabase.from(T.audit).insert({
-        kullanici: userId,
-        branch_id: branchId,
-        islem,
-        detay: { ay: ay.slice(0, 7), not: not ?? null },
-      });
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['months'] });
