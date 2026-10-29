@@ -145,7 +145,6 @@ export interface Employee {
   /** Fiili başlama (deneme dahil); girişten önceyse çizelgede bu tarihten görünür */
   baslama: string | null;
   isten_cikis: string | null;
-  paket_basi: number | null;
   sira: number | null;
 }
 
@@ -155,6 +154,8 @@ export interface EmployeePrivate {
   iban: string | null;
   iban_eski: string | null;
   iban_degisim: string | null;
+  /** Esnaf kurye paket başı ücret (₺) — ücret bilgisi, yalnızca işveren ve bölge müdürü */
+  paket_ucret: number | null;
 }
 
 export interface Shift {

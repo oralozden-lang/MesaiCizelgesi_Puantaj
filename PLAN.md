@@ -33,7 +33,8 @@ EmrePuantaj (Firebase, tek dosya, `github.com/oralozden-lang/EmrePuantaj`) uygul
 
 - Aşama A, B tamam. `0003_guvenlik.sql` canlıda ve repoda; istemci audit yazımı kaldırıldı.
 - `docs/kurallar.md` yazıldı, kullanıcı kararları işlendi (kurallar.md §14). Açık: saat listesi aralığı, "elle çıkar" ayrıntısı (§15).
-- Güncel migration'lar: `0001_puantaj_tam_sema.sql`, `0002_faz1_faz2.sql`, `0003_guvenlik.sql`.
+- Aşama C tamam: `0004_paket_ucret.sql` (esnaf paket ücreti `employee_private`'a taşındı), kurulum uyarısı (`InstallBanner`), `index.html` şablon kalıntıları temizlendi. Servis çalışanı zaten vardı.
+- Güncel migration'lar: `0001_puantaj_tam_sema.sql`, `0002_faz1_faz2.sql`, `0003_guvenlik.sql`, `0004_paket_ucret.sql`.
 
 ## Aşamalar
 

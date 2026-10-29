@@ -13,6 +13,7 @@ import {
 import { useApp } from '@/lib/auth';
 import { cn } from '@/lib/utils';
 import { ROL_ETIKET } from '@/lib/types';
+import InstallBanner from '@/components/InstallBanner';
 
 const useOnline = () => {
   const [online, setOnline] = useState(() => navigator.onLine);
@@ -137,6 +138,7 @@ export default function AppShell() {
         </header>
 
         <main className="flex-1 px-5 pb-28 pt-5">
+          {showTabs && <InstallBanner className="mb-4" />}
           <Outlet />
         </main>
 

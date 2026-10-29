@@ -268,7 +268,7 @@ export const useSaveEmployee = () => {
   return useMutation({
     mutationFn: async (payload: {
       employee: EmployeeInput;
-      ozel?: { tc: string | null; iban: string | null } | null;
+      ozel?: { tc: string | null; iban: string | null; paket_ucret: number | null } | null;
     }): Promise<string | undefined> => {
       const { id, ...alanlar } = payload.employee;
       let empId = id;
@@ -288,7 +288,12 @@ export const useSaveEmployee = () => {
         const { error } = await supabase
           .from(T.private)
           .upsert(
-            { employee_id: empId, tc: payload.ozel.tc, iban: payload.ozel.iban },
+            {
+              employee_id: empId,
+              tc: payload.ozel.tc,
+              iban: payload.ozel.iban,
+              paket_ucret: payload.ozel.paket_ucret,
+            },
             { onConflict: 'employee_id' }
           );
         if (error) err(error);
@@ -317,7 +322,7 @@ export const useEmployeePrivate = (branchId: string | null, enabled: boolean) =>
       if (!ids.length) return [];
       const { data, error } = await supabase
         .from(T.private)
-        .select('employee_id, tc, iban, iban_eski, iban_degisim')
+        .select('employee_id, tc, iban, iban_eski, iban_degisim, paket_ucret')
         .in('employee_id', ids);
       if (error) err(error);
       return (data ?? []) as EmployeePrivate[];

@@ -26,7 +26,7 @@ interface Form {
   ise_giris: string;
   baslama: string;
   isten_cikis: string;
-  paket_basi: string;
+  paket_ucret: string;
   sira: number | null;
   tc: string;
   iban: string;
@@ -78,7 +78,7 @@ export default function StaffTab({
       ise_giris: e?.ise_giris ?? bugun,
       baslama: e?.baslama ?? '',
       isten_cikis: e?.isten_cikis ?? '',
-      paket_basi: e?.paket_basi != null ? String(e.paket_basi) : '',
+      paket_ucret: o?.paket_ucret != null ? String(o.paket_ucret) : '',
       sira: e?.sira ?? null,
       tc: o?.tc ?? '',
       iban: o?.iban ? ibanGoster(o.iban) : '',
@@ -110,7 +110,7 @@ export default function StaffTab({
     const iban = ibanNorm(form.iban);
     if (iban && !/^TR[0-9]{24}$/.test(iban)) return setHata('IBAN TR ile başlayan 26 karakter olmalı.');
     const esnaf = form.calisma_sekli === 'esnaf';
-    const paket = form.paket_basi.trim() ? Number(form.paket_basi.replace(',', '.')) : null;
+    const paket = form.paket_ucret.trim() ? Number(form.paket_ucret.replace(',', '.')) : null;
     if (esnaf && paket !== null && (Number.isNaN(paket) || paket < 0))
       return setHata('Paket başı ücret geçersiz.');
 
@@ -127,10 +127,9 @@ export default function StaffTab({
           ise_giris: form.ise_giris,
           baslama: form.baslama || null,
           isten_cikis: form.isten_cikis || null,
-          paket_basi: esnaf ? paket : null,
           sira: form.sira,
         },
-        ozel: { tc: tc || null, iban: iban || null },
+        ozel: { tc: tc || null, iban: iban || null, paket_ucret: esnaf ? paket : null },
       });
       setForm(null);
     } catch (e) {
@@ -291,8 +290,8 @@ export default function StaffTab({
               <span className="label-cap">Paket başı ücret (₺)</span>
               <input
                 inputMode="decimal"
-                value={form.paket_basi}
-                onChange={(e) => setForm({ ...form, paket_basi: e.target.value })}
+                value={form.paket_ucret}
+                onChange={(e) => setForm({ ...form, paket_ucret: e.target.value })}
                 className={inputCls}
                 placeholder="45"
               />

@@ -4,6 +4,7 @@ import { Loader2, LogIn } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { callUserFn } from '@/lib/supabase';
 import { InlineError } from '@/components/parts';
+import InstallBanner from '@/components/InstallBanner';
 
 const DOMAIN = 'puantaj-merkezi.app';
 
@@ -145,6 +146,7 @@ export default function Login() {
             </p>
           </form>
         )}
+        <InstallBanner className="mt-8" />
       </div>
     </div>
   );

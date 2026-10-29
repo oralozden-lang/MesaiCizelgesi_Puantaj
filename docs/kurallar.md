@@ -38,7 +38,8 @@ Kural **G-1:** Vardiya olmayan kodlar "dolu hücre" sayılır; boş gün değild
 ## 2. Saat kuralları
 
 - **S-1 Yarım saat.** Başlangıç ve bitiş dakikası yalnızca `00` veya `30`.
-- **S-2 Tek saat listesi (KARAR).** Saat listesi **bütün şubeler için ortak, tek bir yarım saatlik listedir**. Şubeye göre liste değişmez. Liste aralığı ❓ (aşağıda). *(EmrePuantaj'da liste şubenin açılış/kapanışına göre üretiliyordu; bu kalktı.)*
+- **S-2 Tek saat listesi (KARAR).** Saat listesi **bütün şubeler için ortak, tek bir yarım saatlik listedir**. Şubeye göre liste değişmez. **Aralık (ilk ve son saat) işveren tarafından Yönetim panelinde belirlenir ve istendiğinde değiştirilebilir** (varsayılan 10:00 – 03:30). Son saat ilk saatten küçük/eşitse ertesi güne taşar. Mevcut vardiyalar değişmez; aralık daraltılırsa dışarıda kalan eski kayıtlar çizelgede uyarı rengiyle görünür ve düzeltilene kadar kapatmayı engellemez (❓ ayrıntı D aşamasında). *(EmrePuantaj'da liste şubenin açılış/kapanışına göre üretiliyordu; bu kalktı.)*
+  - **Veri:** tek satırlık genel ayar tablosu (`sistem_ayar`: `saat_ilk`, `saat_son`); yalnızca işveren yazar, tüm giriş yapmış kullanıcılar okur.
 - **S-3 Pay / ileri tarih sınırı kalktı (KARAR).** EmrePuantaj'daki "bugün ve geçmişte ±1 saat pay, ileri tarihte pay yok" ayrımı ve "erken/geç" turuncu işareti **yoktur**; tek liste her gün geçerlidir.
 - **S-4 Gece vardiyası.** `bitiş ≤ başlangıç` ise süre `bitiş + 24 − başlangıç`. Örnek: `18:00-02:30` = 8,5 saat.
 - **S-5 Azami süre.** Bir vardiya en çok **16 saat** olabilir.
@@ -303,7 +304,9 @@ Durum: tamamı ⬜.
 | 5 | Saat listesi (S-2, S-3, S-6, S-7) | **Bütün şubeler için tek liste.** Şubede yalnızca açılış/kapanış tutulur, çizelge rengi içindir. `sonSaat` ve pay kuralı yok. |
 | 6 | Küsurat atma (O-2) | **Sabit kalsın** (Eylül 2026'dan itibaren). |
 
+| 7 | Saat listesi aralığı (S-2) | **Yönetici panelinde belirlenir, esnek.** Varsayılan 10:00 – 03:30. |
+| 8 | "Elle çıkar" (P-12) | Kişinin o hafta bu şubede **yazılmış vardiyası/kodu varsa çıkarmaya izin verilmez**; önce o günler temizlenir. |
+
 ## 15. Hâlâ açık ❓
 
-1. **S-2 tek liste hangi aralık?** Önerim: **10:00 – 03:30** (30 dk aralıklı; EmrePuantaj'ın pay dahil en geniş aralığı). Bu aralık dışı saat girilemez. Farklı bir aralık istiyorsanız belirtin.
-2. **P-12 "elle çıkar" kuralı:** çıkarılan kişinin o hafta bu şubede hiçbir günü boş sayılmaz. Çıkarılan kişinin o hafta bu şubede zaten yazılmış vardiyası varsa çıkarmaya izin verilmesin mi?
+1. **Saat aralığı daraltılırsa** dışarıda kalan eski vardiyaların kapatmayı engelleyip engellemeyeceği (D aşamasında netleşecek; önerim: engellemesin, kırmızı gösterilsin).
